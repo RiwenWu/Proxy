@@ -1,4 +1,4 @@
-package com.wrw.proxy.demo03;
+package com.wrw.proxy.demo04;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,13 +17,28 @@ import javax.tools.JavaCompiler.CompilationTask;
  * @interFace
  */
 public class Proxy {
-	public static Object newProxyInstance(Class interFace) throws Exception{
-		System.out.println(interFace.getName());
-		System.out.println(interFace.getSimpleName());
+	public static Object newProxyInstance(Class interFace, InvocationHandler handler) throws Exception{
+
 		//换行
 		String rt = "\r\n";
+		//方法体
+		String methodStr = "";
+		
+		Method[] methods = interFace.getMethods();
+		
+		for(Method m : methods) {
+			methodStr += "@Override" + rt + 
+				"public void " + m.getName() + "() {" + rt +
+						 	"   long start = System.currentTimeMillis();" + rt +
+							"   System.out.println(\"starttime:\" + start);" + rt +
+							"   t." + m.getName() + "();" + rt +
+							"   long end = System.currentTimeMillis();" + rt +
+							"   System.out.println(\"time:\" + (end-start));" + rt +
+							"}";	 
+		}
+		
 		String src = 
-		"package com.wrw.proxy.demo03;" + rt +
+		"package com.wrw.proxy.demo04;" + rt +
 
 		"public class TankTimeProxy implements " + interFace.getSimpleName() + "{" + rt +
 							
@@ -33,18 +48,13 @@ public class Proxy {
 		"	}" + rt +
 							
 		"	moveable t;" + rt +
-							
-		"	public void move(){" + rt +
-		"		Long start = System.currentTimeMillis();" + rt +
-		"		t.move();" + rt +
-		"		Long end = System.currentTimeMillis();" + rt +
-		"		System.out.println(\"time: \" + (end - start));" + rt +
-		"	}" + rt +
+		methodStr					
+		 + rt +
 		"}";
 				
 		//文件地址
 		String fileName = System.getProperty("user.dir") 
-				+ "/src/com/wrw/proxy/demo03/TankTimeProxy.java";
+				+ "/src/com/wrw/proxy/demo04/TankTimeProxy.java";
 		//写入临时文件
 		File f = new File(fileName);
 		FileWriter fw = new FileWriter(f);
@@ -54,7 +64,7 @@ public class Proxy {
 				
 				//进行编译
 				JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-				System.out.println(compiler.getClass().getName());
+				//System.out.println(compiler.getClass().getName());
 				//文件管理
 				StandardJavaFileManager fileMgr = compiler.getStandardFileManager(null, null, null);
 				Iterable units = fileMgr.getJavaFileObjects(fileName);
@@ -68,16 +78,16 @@ public class Proxy {
 						new URL("file:/" + System.getProperty("user.dir") + "/src")
 				};
 				URLClassLoader ul = new URLClassLoader(urls);
-				Class c = ul.loadClass("com.wrw.proxy.demo03.TankTimeProxy");
-				System.out.println(c);
+				Class c = ul.loadClass("com.wrw.proxy.demo04.TankTimeProxy");
+				//System.out.println(c);
 				
 				//获取构造方法
 				Constructor ctr = c.getConstructor(moveable.class);
-				moveable m = (moveable)ctr.newInstance(new Tank());
+				Object m = ctr.newInstance(new Tank());
 				
-				m.move();				
+						
 				
-		return null ;
+		return m ;
 		
 	}
 }

@@ -1,5 +1,5 @@
 package com.wrw.proxy.demo03;
-public class TankTimeProxy implements Serializable{
+public class TankTimeProxy implements moveable{
 	public TankTimeProxy(moveable t) {
 		super();
 		this.t = t;

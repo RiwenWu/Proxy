@@ -10,11 +10,9 @@ public class test {
 
 	@Test
 	public void test() throws Exception{
-		Tank t = new Tank();
 		
-		moveable m = (moveable)Proxy.newProxyInstance(Serializable.class);
+		moveable m = (moveable)Proxy.newProxyInstance(moveable.class);
 		
-		m.move();
 	}
 	
 }
